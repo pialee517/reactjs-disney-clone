@@ -33,6 +33,7 @@ function Header() {
 export default Header
 
 const Nav = styled.nav`
+    overflow-x:hidden;
     height: 70px;
     background: #090b13;
     display:flex;
