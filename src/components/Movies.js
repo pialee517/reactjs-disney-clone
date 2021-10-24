@@ -12,7 +12,7 @@ function Movies() {
             <h4>Recommended for You</h4>
             <Content>
                 { movies &&  movies.map((movie)=>(
-                    <Wrap>
+                    <Wrap key={movie.id}>
                         <img src={movie.cardImg} />
                     </Wrap>
                 )) }
