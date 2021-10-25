@@ -1,37 +1,60 @@
-import React from 'react'
+import React, { useEffect, useState }from 'react'
 import styled from 'styled-components'
+import { useParams } from "react-router-dom"
+import db from "../firebase"
 
 function Detail() {
+
+    const { id } = useParams();
+    const [ movie, setMovie ] = useState();
+
+    useEffect(() => {
+        db.collection("movies")
+          .doc(id)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+                setMovie(doc.data());
+            }else{
+                console.log("no such document in firebase ");
+            }
+        })
+    }, [id])
+
     return (
         <Container>
-            <Background>
-                <img src="https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/9D8AEB7DE234898392BFD20E7D9B112B841E920AF9A3F54CCFB966722AFF3461/scale?width=1920&aspectRatio=1.78&format=jpeg" />
-            </Background>
-            <ImgTitle>
-                <img src="https://prod-ripcut-delivery.disney-plus.net/v1/variant/disney/EF737B93E2F2ABE27C74CBBEB322F18A421E7986129E9989587CEF2295B0447F/scale?width=1344&aspectRatio=1.78&format=png" />
-            </ImgTitle>
-            <Controls>
-                <PlayButton>
-                    <img src="/images/play-icon-black.png" />
-                    <span>PLAY</span>
-                </PlayButton>
-                <TrailerButton>
-                    <img src="/images/play-icon-white.png" />
-                    <span>Trailer</span>
-                </TrailerButton>
-                <AddButton>
-                    <span>+</span>
-                </AddButton>
-                <GroupWatchButton>
-                    <img src="/images/group-icon.png" />
-                </GroupWatchButton>
-            </Controls>
-            <SubTitle>
-                2018 7m Family, Fantasy, Kids, Animation
-            </SubTitle>
-            <Description>
-            A Chinese mom who’s sad when her grown son leaves home gets another chance at motherhood when one of her dumplings springs to life. But she finds that nothing stays cute and small forever
-            </Description>
+            {movie && (
+            <>
+                <Background>
+                    <img src={movie.backgroundImg} />
+                </Background>
+                <ImgTitle>
+                    <img src={movie.titleImg} />
+                </ImgTitle>
+                <Controls>
+                    <PlayButton>
+                        <img src="/images/play-icon-black.png" />
+                        <span>PLAY</span>
+                    </PlayButton>
+                    <TrailerButton>
+                        <img src="/images/play-icon-white.png" />
+                        <span>Trailer</span>
+                    </TrailerButton>
+                    <AddButton>
+                        <span>+</span>
+                    </AddButton>
+                    <GroupWatchButton>
+                        <img src="/images/group-icon.png" />
+                    </GroupWatchButton>
+                </Controls>
+                <SubTitle>
+                    {movie.subTitle}
+                </SubTitle>
+                <Description>
+                    {movie.description}
+                </Description>)
+                </>
+            )}
         </Container>
     )
 }
