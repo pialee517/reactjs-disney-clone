@@ -1,31 +1,79 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { auth, provider } from '../firebase'
 import styled from 'styled-components'
+import { useHistory } from 'react-router-dom'
+import { selectUserName, selectUserPhoto, setUserLogin, setSignOut } from "../features/user/userSlice"
+import { useSelector, useDispatch } from 'react-redux'
 
 function Header() {
+    const dispatch = useDispatch()
+    const history = useHistory() 
+    const userName = useSelector(selectUserName);
+    const userPhoto = useSelector(selectUserPhoto);
+
+    useEffect(()=>{
+        auth.onAuthStateChanged(async (user)=>{
+            if(user){
+                dispatch(setUserLogin({
+                    name: user.displayName,
+                    email: user.email,
+                    photo: user.photoURL
+                }))
+                history.push('/')
+            }
+        })
+    },[])
+    
+    const signIn = () => {
+        auth.signInWithPopup(provider)
+        .then((result)=>{
+            let user = result.user
+            dispatch(setUserLogin({
+                name: user.displayName,
+                email: user.email,
+                photo: user.photoURL
+            }))
+            history.push('/')
+        })
+    }
+    
+    const signOut = () =>{
+        auth.signOut()
+        .then(()=>{
+            dispatch(setSignOut());
+            history.push("/login")
+        })
+    }
     return (
         <Nav>
             <Logo src="/images/logo.svg" />
-            <NavMenu>
-                <a>
-                    <img src="/images/home-icon.svg" /><span>Home</span>
-                </a>
-                <a>
-                    <img src="/images/search-icon.svg" /><span>Search</span>
-                </a>
-                <a>
-                    <img src="/images/watchlist-icon.svg" /><span>Watchlist</span>
-                </a>
-                <a>
-                    <img src="/images/original-icon.svg" /><span>original</span>
-                </a>
-                <a>
-                    <img src="/images/movie-icon.svg" /><span>movie</span>
-                </a>
-                <a>
-                    <img src="/images/series-icon.svg" /><span>series</span>
-                </a>
-            </NavMenu>
-            <UserImg src="https://dynaimage.cdn.cnn.com/cnn/q_auto,w_1280,c_fill,g_auto,h_720,ar_16:9/http%3A%2F%2Fcdn.cnn.com%2Fcnnnext%2Fdam%2Fassets%2F190430171751-mona-lisa.jpg" />
+            { !userName ? 
+                (<LoginContainer>
+                    <Login onClick={signIn}>Login</Login>
+                </LoginContainer>) :
+                <>
+                <NavMenu>
+                    <a>
+                        <img src="/images/home-icon.svg" /><span>Home</span>
+                    </a>
+                    <a>
+                        <img src="/images/search-icon.svg" /><span>Search</span>
+                    </a>
+                    <a>
+                        <img src="/images/watchlist-icon.svg" /><span>Watchlist</span>
+                    </a>
+                    <a>
+                        <img src="/images/original-icon.svg" /><span>original</span>
+                    </a>
+                    <a>
+                        <img src="/images/movie-icon.svg" /><span>movie</span>
+                    </a>
+                    <a>
+                        <img src="/images/series-icon.svg" /><span>series</span>
+                    </a>
+                </NavMenu>
+                <UserImg onClick={signOut} src="https://dynaimage.cdn.cnn.com/cnn/q_auto,w_1280,c_fill,g_auto,h_720,ar_16:9/http%3A%2F%2Fcdn.cnn.com%2Fcnnnext%2Fdam%2Fassets%2F190430171751-mona-lisa.jpg" />
+            </> }
         </Nav>
     )
 }
@@ -93,4 +141,25 @@ const UserImg = styled.img`
     border-radius:50%;
     cursor:pointer;
     
+`
+
+const Login = styled.div`
+    border-radius: 4px;
+    border: 1px solid #f9f9f9;
+    padding: 8px 16px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background-color:rgba(0, 0, 0, 0.6);
+    transition: all 0.2s ease 0s;
+    cursor:pointer;
+    &:hover{
+        background-color: #f9f9f9;
+        color:#000000;
+        border-color:transparent;
+    }
+`
+const LoginContainer = styled.div`
+    flex:1;
+    display:flex;
+    justify-content:flex-end;
 `

@@ -26,7 +26,7 @@ function Movies() {
 export default Movies
 
 const Container = styled.div`
-
+padding: 0 0 26px;
 `
 
 const Content = styled.div`
